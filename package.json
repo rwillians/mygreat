@@ -1,0 +1,19 @@
+{
+  "name": "mygreat",
+  "version": "1.0.0",
+  "description": "Agnostic migration tool",
+  "main": "index.js",
+  "homepage": "https://github.com/rwillians/mygreat#readme",
+  "repository": "git@github.com:rwillians/mygreat.git",
+  "bugs": {
+    "url": "https://github.com/rwillians/mygreat/issues"
+  },
+  "contributors": [
+    "Rafael Willians <me@rwillians.com>"
+  ],
+  "license": "MIT",
+  "engines": [
+    "node >= 7.6.0"
+  ],
+  "license": "MIT"
+}
