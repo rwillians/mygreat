@@ -1,6 +1,5 @@
 'use strict'
 
 module.exports = {
-  up: () => { },
-  down: () => { }
+  up: async (instance) => { }
 }
