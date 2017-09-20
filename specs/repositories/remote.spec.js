@@ -6,19 +6,17 @@ const remote = require('../../repositories/remote')
 describe('mygreate/repositories', () => {
   const locator = memory([
     {
-      _id: '729185ad-1041-4423-9044-2a80a7c13c4e',
-      files: [
+      name: '729185ad-1041-4423-9044-2a80a7c13c4e',
+      content: [
         '20170914182600'
-      ],
-      createdAt: new Date('2017-09-14T20:56:53.000Z')
+      ]
     },
     {
-      _id: '832185ad-1041-2343-2342-2a80a7c23c4b',
-      files: [
+      name: '832185ad-1041-2343-2342-2a80a7c23c4b',
+      content: [
         '20170914202400',
         '20170914210300'
-      ],
-      createdAt: new Date('2017-09-19T19:46:50.000Z')
+      ]
     }
   ])
 
@@ -29,19 +27,17 @@ describe('mygreate/repositories', () => {
       it('returns all remote migrations registries found by the locator', () => {
         return expect( repository.all() ).to.eventually.shallowDeepEqual([
           {
-            _id: '729185ad-1041-4423-9044-2a80a7c13c4e',
-            files: [
+            name: '729185ad-1041-4423-9044-2a80a7c13c4e',
+            content: [
               '20170914182600'
-            ],
-            createdAt: new Date('2017-09-14T20:56:53.000Z')
+            ]
           },
           {
-            _id: '832185ad-1041-2343-2342-2a80a7c23c4b',
-            files: [
+            name: '832185ad-1041-2343-2342-2a80a7c23c4b',
+            content: [
               '20170914202400',
               '20170914210300'
-            ],
-            createdAt: new Date('2017-09-19T19:46:50.000Z')
+            ]
           }
         ])
       })

@@ -1,7 +1,7 @@
 'use strict'
 
 const files = (migrations) => {
-  return migrations.map(migration => migration.files)
+  return migrations.map(({ content }) => content)
                    .reduce((flat, files) => flat.concat(files))
 }
 
