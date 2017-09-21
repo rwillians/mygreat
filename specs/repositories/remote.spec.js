@@ -55,10 +55,8 @@ describe('mygreate/repositories', () => {
         const spy = { push: sinon.spy() }
         const repo = remote(memory(spy))
 
-        return expect(
-          repository.create('foo', [])
-                    .then(() => spy.push.calledOnce)
-        ).to.eventually.be.equals(true)
+        return expect( repo.create('foo', []).then(() => spy.push.called) )
+          .to.eventually.be.equals(true)
       })
     })
 
