@@ -1,9 +1,9 @@
 'use strict'
 
 const path = require('path')
-const memory = require('../../locators/memory')
+const memory = require('../../adaptors/memory')
 
-describe('mygreat/locators', () => {
+describe('mygreat/adaptors', () => {
   const entries = [
     { name: '20170914182600', content: { up: () => {}, down: () => {} } }
   ]

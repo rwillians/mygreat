@@ -1,11 +1,16 @@
 'use strict'
 
-module.exports = (locator) => ({
+module.exports = (adaptor) => ({
   all: async () => {
-    return locator.locate()
+    return adaptor.locate()
   },
   count: async () => {
-    return locator.locate()
+    return adaptor.locate()
                   .then(files => files.length)
+  },
+  fetch: async (name) => {
+    const files = await adaptor.locate()
+    return files.filter(file => file.name === name)
+                .shift()
   }
 })

@@ -1,6 +1,7 @@
 'use strict'
 
-const memory = require('../../locators/memory')
+const sinon = require('sinon')
+const memory = require('../../adaptors/memory')
 const remote = require('../../repositories/remote')
 
 describe('mygreate/repositories', () => {
@@ -23,7 +24,7 @@ describe('mygreate/repositories', () => {
   describe('remote(locator Object): Object', () => {
     const repository = remote(locator)
 
-    describe('all(): Promise<Array[Object]>', () => {
+    describe('.all(): Promise<Array[Object]>', () => {
       it('returns all remote migrations registries found by the locator', () => {
         return expect( repository.all() ).to.eventually.shallowDeepEqual([
           {
@@ -43,13 +44,25 @@ describe('mygreate/repositories', () => {
       })
     })
 
-    describe('count(): Promise<Number>', () => {
+    describe('.count(): Promise<Number>', () => {
       it('number of migrations registries found by the locator', () => {
         return expect( repository.count() ).to.eventually.be.equals(2)
       })
     })
 
-    describe('files(): Promise<Array[String]>', () => {
+    describe('.create(name String, content Array[Object]): Promise', () => {
+      it('creates a remote entry', () => {
+        const spy = { push: sinon.spy() }
+        const repo = remote(memory(spy))
+
+        return expect(
+          repository.create('foo', [])
+                    .then(() => spy.push.calledOnce)
+        ).to.eventually.be.equals(true)
+      })
+    })
+
+    describe('.files(): Promise<Array[String]>', () => {
       it('array of files flatted from migrations registries', () => {
         return expect( repository.files() ).to.eventually.be.deep.equals([
           '20170914182600',
@@ -59,7 +72,7 @@ describe('mygreate/repositories', () => {
       })
     })
 
-    describe('synced(filename String): Promise<Boolean>', () => {
+    describe('.synced(filename String): Promise<Boolean>', () => {
       it('returns true if the given filename with the given revision is present on the remote migrations registries', () => {
         return expect( repository.synced('20170914182600') )
           .to.eventually.be.equals(true)

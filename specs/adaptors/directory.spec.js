@@ -1,9 +1,9 @@
 'use strict'
 
 const path = require('path')
-const directory = require('../../locators/directory')
+const directory = require('../../adaptors/directory')
 
-describe('mygreat/locators', () => {
+describe('mygreat/adaptors', () => {
   describe('directory(path String): Object', () => {
     describe('.locate(): Promise<Array[Object]>', () => {
       it('fetches all files and their content from a given directory', () => {

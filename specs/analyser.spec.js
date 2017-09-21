@@ -2,8 +2,8 @@
 
 const analyser = require('../analyser')
 
-const memory = require('../locators/memory')
-const directory = require('../locators/directory')
+const memory = require('../adaptors/memory')
+const directory = require('../adaptors/directory')
 
 const local = require('../repositories/local')
 const remote = require('../repositories/remote')
