@@ -3,13 +3,31 @@
 const uuid = require('uuid/v4')
 const analyser = require('./analyser')
 const ConflictError = require('./errors/conflict')
-const MigrationError = require('./errors/migration')
+const localRepository = require('./repositories/local')
+const MigrationUpError = require('./errors/migration-up')
+const remoteRepository = require('./repositories/remote')
+const MigrationDownError = require('./errors/migration-down')
 
-const down = async (migrationRegistry, migrationFiles, args) => {
-  //
+const conflictValidation = async (analysed) => {
+  const conflicts = await analysed.conflicting()
+  if (conflicts.length > 0) { throw new ConflictError(conflicts) }
 }
 
-const up = async (migrationFiles, args)  => {
+const migrateDown = async (migrationRegistry, local, args) => {
+  const migrationFiles = await local.fetchAll(migrationRegistry.content)
+  const downedMigrations = []
+
+  try {
+    for (const migration of migrationFiles) {
+      await migration.content.down(...args)
+      downedMigrations.push(migration.name)
+    }
+  } catch (err) {
+    throw new MigrationDownError(err, migrationRegistry, downedMigrations)
+  }
+}
+
+const migrateUp = async (migrationFiles, args)  => {
   const migrationRegistry = { name: uuid(), content: [] }
 
   try {
@@ -18,33 +36,54 @@ const up = async (migrationFiles, args)  => {
       migrationRegistry.content.push(migration.name)
     }
   } catch (err) {
-    throw new MigrationError(err, migrationRegistry)
+    throw new MigrationUpError(err, migrationRegistry)
   }
 
   return migrationRegistry
 }
 
+const unsynced = async (analysed, local) => {
+  const unsynced = await analysed.unsynced()
+  return local.fetchAll(unsynced.map(migration => migration.name))
+}
+
 module.exports = (local, remote) => ({
   up: async (...args) => {
-    const collection = await analyser(local, remote).analyse()
-    const conflicts = await collection.conflicting()
+    const analysed = await analyser(local, remote).analyse()
 
-    if (conflicts.length > 0) {
-      throw new ConflictError(conflicts)
+    await conflictValidation(analysed)
+
+    const migrations = await unsynced(analysed, local)
+    const migrationRegistry = await migrateUp(migrations, args)
+
+    if (migrationRegistry.content.length === 0) {
+      return migrationRegistry
     }
 
-    const unsynced = await collection.unsynced()
-    const migrations = await Promise.all(unsynced.map(async (migration) => {
-      return local.fetch(migration.name)
-    }))
-
-    const migrationRegistry = await up(migrations, args)
-
-    await remote.create(migrationRegistry.name, migrationRegistry.content)
-
-    return migrationRegistry
+    return remote.add(migrationRegistry.name, migrationRegistry.content)
+                 .then(() => migrationRegistry)
   },
   down: async (...args) => {
-    // const migrationRegistry = await down(local, remote, args)
+    await analyser(local, remote).analyse()
+                                 .then(conflictValidation)
+
+    const latestMigration = await remote.all()
+                                        .then(migrations => migrations.shift())
+
+    if (!latestMigration) {
+      return null
+    }
+
+    await migrateDown(latestMigration, local, args)
+    await remote.remove(latestMigration.name)
+
+    return latestMigration
   }
 })
+
+module.exports.from = (localAdaptor, remoteAdaptor) => {
+  return module.exports(
+    localRepository(localAdaptor),
+    remoteRepository(remoteAdaptor),
+  )
+}

@@ -1,7 +1,7 @@
 'use strict'
 
 const local = require('../../repositories/local')
-const memory = require('../../adaptors/memory')
+const memory = require('../../adaptors/in-memory')
 
 describe('mygreate/repositories', () => {
   const locator = memory([
@@ -33,6 +33,16 @@ describe('mygreate/repositories', () => {
           .to.eventually.be.shallowDeepEqual(
             { name: '20170914182600', content: { up: () => {}, down: () => {} } }
           )
+      })
+    })
+
+    describe('fetchAll(names Array[String]): Promise<Array[Object]>', () => {
+      it('fetches all given migration files by their names', () => {
+        return expect( repository.fetchAll(['20170914142000', '20170914182600']) )
+          .to.eventually.be.shallowDeepEqual([
+            { name: '20170914142000', content: { up: () => {}, down: () => {} } },
+            { name: '20170914182600', content: { up: () => {}, down: () => {} } }
+          ])
       })
     })
   })

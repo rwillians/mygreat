@@ -7,21 +7,24 @@ const files = (migrations) => {
 
 module.exports = (adaptor) => ({
   all: async () => {
-    return adaptor.locate()
+    return adaptor.all()
   },
   count: async () => {
-    return adaptor.locate()
+    return adaptor.all()
                   .then(migrations => migrations.length)
   },
-  create: async (name, content) => {
-    return adaptor.create(name, content)
+  add: async (name, content) => {
+    return adaptor.add(name, content)
+  },
+  remove: async (name) => {
+    return adaptor.remove(name)
   },
   files: async () => {
-    return adaptor.locate()
+    return adaptor.all()
                   .then(migrations => files(migrations))
   },
   synced: async (name) => {
-    return adaptor.locate()
+    return adaptor.all()
                   .then(migrations => files(migrations))
                   .then(files => files.includes(name))
   }

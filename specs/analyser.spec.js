@@ -1,7 +1,7 @@
 'use strict'
 
 const analyser = require('../analyser')
-const memory = require('../adaptors/memory')
+const memory = require('../adaptors/in-memory')
 const local = require('../repositories/local')
 const remote = require('../repositories/remote')
 
@@ -23,7 +23,7 @@ describe('mygreat', () => {
     ]
   }]))
 
-  describe('analyser(local, remote)', () => {
+  describe('analyser(localRepository Object, remoteRepository Object): Object', () => {
     const analyserInstance = analyser(localInstance, remoteInstance)
 
     describe('.analyse() : Promise<Object>', () => {

@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+'use strict'
+
+const path = require('path')
+const mygreat = require('../index')
+
+;(async (environment) => {
+  const file = path.resolve('./.mygreat')
+
+  // check config file exists
+  // load config file
+  // instantiate mygreat
+  // call up or down
+
+})(process.env.NODE_ENV || 'production')

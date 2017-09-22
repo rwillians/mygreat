@@ -1,11 +1,11 @@
 'use strict'
 
 const sinon = require('sinon')
-const memory = require('../../adaptors/memory')
+const memory = require('../../adaptors/in-memory')
 const remote = require('../../repositories/remote')
 
 describe('mygreate/repositories', () => {
-  const locator = memory([
+  const adaptor = memory([
     {
       name: '729185ad-1041-4423-9044-2a80a7c13c4e',
       content: [
@@ -21,11 +21,11 @@ describe('mygreate/repositories', () => {
     }
   ])
 
-  describe('remote(locator Object): Object', () => {
-    const repository = remote(locator)
+  describe('remote(adaptor Object): Object', () => {
+    const repository = remote(adaptor)
 
     describe('.all(): Promise<Array[Object]>', () => {
-      it('returns all remote migrations registries found by the locator', () => {
+      it('returns all remote migrations registries found by the adaptor', () => {
         return expect( repository.all() ).to.eventually.shallowDeepEqual([
           {
             name: '729185ad-1041-4423-9044-2a80a7c13c4e',
@@ -45,17 +45,27 @@ describe('mygreate/repositories', () => {
     })
 
     describe('.count(): Promise<Number>', () => {
-      it('number of migrations registries found by the locator', () => {
+      it('number of migrations registries found by the adaptor', () => {
         return expect( repository.count() ).to.eventually.be.equals(2)
       })
     })
 
-    describe('.create(name String, content Array[Object]): Promise', () => {
+    describe('.add(name String, content Array[Object]): Promise', () => {
       it('creates a remote entry', () => {
-        const spy = { push: sinon.spy() }
-        const repo = remote(memory(spy))
+        const spy = { add: sinon.spy() }
+        const repo = remote(spy)
 
-        return expect( repo.create('foo', []).then(() => spy.push.called) )
+        return expect( repo.add('foo', []).then(() => spy.add.called) )
+          .to.eventually.be.equals(true)
+      })
+    })
+
+    describe('.remove(name String): Promise', () => {
+      it('removes a given entry by its name', () => {
+        const spy = { remove: sinon.spy() }
+        const repo = remote(spy)
+
+        return expect( repo.remove('foo').then(() => spy.remove.called) )
           .to.eventually.be.equals(true)
       })
     })
