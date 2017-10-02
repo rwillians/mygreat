@@ -1,6 +1,6 @@
 {
   "name": "@haoc-labs/mygreat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Agnostic migration tool",
   "main": "index.js",
   "homepage": "https://github.com/haoc-labs/mygreat#readme",
@@ -17,6 +17,9 @@
   ],
   "scripts": {
     "test": "mocha specs --check-leaks --full-trace --use_strict --recursive --require ./specs/spec-helper.js"
+  },
+  "bin": {
+    "mygreat": "./bin/mygreat"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
