@@ -1,6 +1,6 @@
 {
   "name": "@haoc-labs/mygreat",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Agnostic migration tool",
   "main": "index.js",
   "homepage": "https://github.com/haoc-labs/mygreat#readme",
