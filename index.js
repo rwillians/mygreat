@@ -68,7 +68,7 @@ module.exports = (local, remote) => ({
                                  .then(conflictValidation)
 
     const latestMigration = await remote.all()
-                                        .then(migrations => migrations.shift())
+                                        .then(all => all.reverse().shift())
 
     if (!latestMigration) {
       return null

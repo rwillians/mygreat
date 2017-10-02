@@ -23,7 +23,7 @@ const errorHandler = (err) => {
         console.error('#', '  - a synced migration file has been renamed')
         console.error('#', '  - a new migration has been named wrongly - all new migrations should be placed as last, considering an ascending order')
         console.error('#', '  - a synced migration file has been deleted before been migrated-down')
-        console.error('#', '  - migrate down should alway revert the most recent migration execution registry, otherwise the next execution could throw this error')
+        console.error('#', '  - migrating down should alway revert the most recent migration execution registry, otherwise the next execution could trigger this error')
         process.exit(1)
     }
 
