@@ -5,11 +5,29 @@
 const path = require('path')
 const mygreat = require('../index')
 const program = require('commander')
+const ConflictError = require('../errors/conflict')
 const environment = process.env.NODE_ENV || 'development'
 const fallback = (value, defaultValue) => value || defaultValue
 
 const configFactory = (dir) => {
     return require(path.resolve(process.cwd(), dir))(environment)
+}
+
+const errorHandler = (err) => {
+    if (err instanceof ConflictError) {
+        console.error('Conflict Error')
+        console.error('Unable to proceed due possible integrity break.')
+        console.error('Any of the following scenarios could couse this error:')
+        console.error('  - a synced migration file has been renamed')
+        console.error('  - a new migration has been named wrongly - all new migrations should be placed as last, considering an ascending order')
+        console.error('  - a synced migration file has been deleted before been migrated-down')
+        console.error('  - migrate down should alway revert the most recent migration execution registry, otherwise the next execution could throw this error')
+        return
+    }
+
+    console.error('Error:', err.name)
+    console.error(err.message)
+    console.error(err.stack)
 }
 
 program
@@ -36,7 +54,7 @@ program
                     console.log(`  - migration file ${file} has been migrated up`)
                 })
             })
-            .catch(err => console.log(inspect(err, false, null)))
+            .catch(errorHandler)
     })
 
 program
@@ -59,7 +77,7 @@ program
                     console.log(`  - migration file ${file} has been migrated down`)
                 })
             })
-            .catch(err => console.log(inspect(err, false, null)))
+            .catch(errorHandler)
     })
 
 program.parse(process.argv)
