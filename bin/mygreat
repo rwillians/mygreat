@@ -47,8 +47,8 @@ const errorHandler = (err) => {
 
       console.log('Migrating up...')
 
-      config
-        .setup()
+      Promise
+        .resolve(config.setup())
         .then(setup => migrate.up(setup))
         .then(result => {
           if (result.content.length === 0) {
@@ -70,8 +70,8 @@ const errorHandler = (err) => {
 
       console.log('Migrating down...')
 
-      config
-        .setup()
+      Promise
+        .resolve(config.setup())
         .then(setup => migrate.up(setup))
         .then(result => {
           if (!result || result.content.length === 0) {
