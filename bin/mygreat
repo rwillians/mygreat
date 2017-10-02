@@ -1,15 +1,66 @@
 #!/usr/bin/env node
+
 'use strict'
 
 const path = require('path')
 const mygreat = require('../index')
+const program = require('commander')
+const environment = process.env.NODE_ENV || 'development'
+const fallback = (value, defaultValue) => value || defaultValue
 
-;(async (environment) => {
-  const file = path.resolve('./.mygreat')
+const configFactory = (dir) => {
+    return require(path.resolve(process.cwd(), dir))(environment)
+}
 
-  // check config file exists
-  // load config file
-  // instantiate mygreat
-  // call up or down
+program
+    .version(process.env.npm_package_version)
+    .option('-f, --file <dir>', 'path to mygreat configuration file', fallback, './.mygreat.js')
 
-})(process.env.NODE_ENV || 'production')
+program
+    .command('up')
+    .action(options => {
+        const config = configFactory(options.parent.file)
+        const migrate = mygreat.from(config.local, config.remote)
+
+        console.log('Migrating up...')
+
+        migrate
+            .up(config.setup())
+            .then(result => {
+                if (result.content.length === 0) {
+                    return console.log('Nothing to migrate up')
+                }
+
+                console.log(`Migration id #${result.name}`)
+                result.content.forEach(file => {
+                    console.log(`  - migration file ${file} has been migrated up`)
+                })
+            })
+            .catch(err => console.log(inspect(err, false, null)))
+    })
+
+program
+    .command('down')
+    .action(options => {
+        const config = configFactory(options.parent.file)
+        const migrate = mygreat.from(config.local, config.remote)
+
+        console.log('Migrating down...')
+
+        migrate
+            .down(config.setup())
+            .then(result => {
+                if (!result || result.content.length === 0) {
+                    return console.log('Nothing to migrate down')
+                }
+
+                console.log(`Migration id #${result.name}`)
+                result.content.forEach(file => {
+                    console.log(`  - migration file ${file} has been migrated down`)
+                })
+            })
+            .catch(err => console.log(inspect(err, false, null)))
+    })
+
+program.parse(process.argv)
+
