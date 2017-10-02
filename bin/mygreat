@@ -72,7 +72,7 @@ const errorHandler = (err) => {
 
       Promise
         .resolve(config.setup())
-        .then(setup => migrate.up(setup))
+        .then(setup => migrate.down(setup))
         .then(result => {
           if (!result || result.content.length === 0) {
             return console.log('Nothing to migrate down')
