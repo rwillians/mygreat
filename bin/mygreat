@@ -34,7 +34,6 @@ const errorHandler = (err) => {
 }
 
 ;(async () => {
-
   program
     .version(process.env.npm_package_version)
     .option('-f, --file <dir>', 'path to mygreat configuration file', fallback, './.mygreat.js')
@@ -66,6 +65,7 @@ const errorHandler = (err) => {
   program
     .command('down')
     .action(options => {
+      const config = configFactory(options.parent.file)
       const migrate = mygreat.from(config.local, config.remote)
 
       console.log('Migrating down...')
