@@ -10,7 +10,10 @@ const environment = process.env.NODE_ENV || 'development'
 const fallback = (value, defaultValue) => value || defaultValue
 
 const configFactory = (dir) => {
-  return require(path.resolve(process.cwd(), dir))(environment)
+  return Object.assign(
+    { shutdown: () => { process.exit(0) } },
+    require(path.resolve(process.cwd(), dir))(environment)
+  )
 }
 
 const errorHandler = (err) => {
@@ -60,6 +63,7 @@ const errorHandler = (err) => {
           })
         })
         .catch(errorHandler)
+        .finally(config.shutdown)
     })
 
   program
@@ -84,6 +88,7 @@ const errorHandler = (err) => {
           })
         })
         .catch(errorHandler)
+        .finally(config.shutdown)
     })
 
   program.parse(process.argv)
