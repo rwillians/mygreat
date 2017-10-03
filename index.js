@@ -1,5 +1,10 @@
 'use strict'
 
+process.on('unhandledRejection', function(reason, promise){
+  console.log({ event: 'UnhandledPromiseRejection', promise, reason })
+  process.exit(1)
+})
+
 const uuid = require('uuid/v4')
 const analyser = require('./analyser')
 const ConflictError = require('./errors/conflict')
@@ -10,7 +15,10 @@ const MigrationDownError = require('./errors/migration-down')
 
 const conflictValidation = async (analysed) => {
   const conflicts = await analysed.conflicting()
-  if (conflicts.length > 0) { throw new ConflictError(conflicts) }
+  if (conflicts.length > 0) {
+
+    throw new ConflictError(conflicts)
+  }
 }
 
 const migrateDown = async (migrationRegistry, local, args) => {

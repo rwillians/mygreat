@@ -16,24 +16,71 @@ const configFactory = (dir) => {
   )
 }
 
-const errorHandler = (config) => (err) => {
-  console.log('')
+const errorHandler = (err) => {
+  console.log('│')
+  console.log('│')
 
   if (err instanceof ConflictError) {
-    console.error('#', 'Conflict Error')
-    console.error('#', 'Unable to proceed due possible integrity break.')
-    console.error('#', 'Any of the following scenarios could couse this error:')
-    console.error('#', '  - a synced migration file has been renamed')
-    console.error('#', '  - a new migration has been named wrongly - all new migrations should be placed as last, considering an ascending order')
-    console.error('#', '  - a synced migration file has been deleted before been migrated-down')
-    console.error('#', '  - migrating down should alway revert the most recent migration execution registry, otherwise the next execution could trigger this error')
-    process.exit(1)
+    console.error('│  ┌')
+    console.error('│  │ [ error: conflict ]')
+    console.error('│  │ unable to proceed due possible integrity break')
+    console.error('│  │')
+    console.error('│  │ any of the following scenarios could couse this error:')
+    console.error('├──┤  - a synced migration file has been renamed;')
+    console.error('│  │  - a new migration has been named wrongly - all new')
+    console.error('│  │    migrations should be placed as last, considering')
+    console.error('│  │    an ascending order;')
+    console.error('│  │  - a synced migration file has been deleted before')
+    console.error('│  │    been migrated-down;')
+    console.error('│  └')
+  } else {
+    console.error('│  ┌')
+    console.error(`├──┤ [ error: ${err.name} ]`)
+    console.error('│  │', err.message)
+    console.error('│  └')
   }
 
-  console.error('#', 'Error:', err.name)
-  console.error('#', err.message)
-  console.error('#', err.stack)
+  console.log('│')
+  console.log('│')
+  console.log('└─ [ » exit 1 ]')
   process.exit(1)
+}
+
+const action = async (file, direction) => {
+  console.log(['  ╔═════════', (direction === 'up') ? '═══╗' : '═════╗'].join(''))
+  console.log(['┌─║ migrate ', (direction === 'up') ? 'up ║' : 'down ║'].join(''))
+  console.log(['│ ╚═════════', (direction === 'up') ? '═══╝' : '═════╝'].join(''))
+  console.log('│')
+  console.log('├─ setting up...')
+  const config = configFactory(file)
+  const migrate = mygreat.from(config.local, config.remote)
+  const setup = await config.setup()
+  const fn = migrate[direction]
+  console.log('├─ migrating...')
+  const result = await fn(setup)
+
+  if (!result || result.content.length === 0) {
+    console.log('│ └─ nothing to migrate')
+    console.log('│')
+    console.log('└─ [ » exit 0 ]')
+    config.shutdown()
+    return
+  }
+  console.log('│ └─ migrated')
+  console.log('│')
+  console.log('│')
+  console.log('│ ╔══════════════════════════════════════════════════════════════╗')
+  console.log(`└─║ migration execution id #${result.name} ║─┐`)
+  console.log('  ╚══════════════════════════════════════════════════════════════╝ │')
+  console.log('        ┌──────────────────────────────────────────────────┐       │')
+  console.log('┌───────┤ the following migration files have been executed │───────┘')
+  console.log('│       └──────────────────────────────────────────────────┘')
+  console.log('│')
+  result.content.forEach(file => { console.log(`├─ file "${file}" / method "${direction}"`) })
+  console.log('│')
+  console.log('└─ [ » exit 0 ]')
+
+  return config.shutdown()
 }
 
 ;(async () => {
@@ -43,53 +90,11 @@ const errorHandler = (config) => (err) => {
 
   program
     .command('up')
-    .action(options => {
-      const config = configFactory(options.parent.file)
-      const migrate = mygreat.from(config.local, config.remote)
-
-      console.log('Migrating up...')
-
-      Promise
-        .resolve(config.setup())
-        .then(setup => migrate.up(setup))
-        .then(result => {
-          if (result.content.length === 0) {
-            return console.log('Nothing to migrate up')
-          }
-          console.log('')
-          console.log(`Migration id #${result.name}`)
-          result.content.forEach(file => {
-            console.log(`  - migration file ${file} has been migrated up`)
-          })
-        })
-        .catch(errorHandler)
-        .then(config.shutdown)
-    })
+    .action(options => action(options.parent.file, 'up').catch(errorHandler))
 
   program
     .command('down')
-    .action(options => {
-      const config = configFactory(options.parent.file)
-      const migrate = mygreat.from(config.local, config.remote)
-
-      console.log('Migrating down...')
-
-      Promise
-        .resolve(config.setup())
-        .then(setup => migrate.down(setup))
-        .then(result => {
-          if (!result || result.content.length === 0) {
-            return console.log('Nothing to migrate down')
-          }
-          console.log('')
-          console.log(`Migration id #${result.name}`)
-          result.content.forEach(file => {
-            console.log(`  - migration file ${file} has been migrated down`)
-          })
-        })
-        .catch(errorHandler)
-        .then(config.shutdown)
-    })
+    .action(options => action(options.parent.file, 'down').catch(errorHandler))
 
   program.parse(process.argv)
 })()
