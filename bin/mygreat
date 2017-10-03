@@ -11,12 +11,12 @@ const fallback = (value, defaultValue) => value || defaultValue
 
 const configFactory = (dir) => {
   return Object.assign(
-    { shutdown: () => { process.exit(0) } },
+    { shutdown: () => { } },
     require(path.resolve(process.cwd(), dir))(environment)
   )
 }
 
-const errorHandler = (err) => {
+const errorHandler = (config) => (err) => {
   console.log('')
 
   if (err instanceof ConflictError) {
@@ -63,7 +63,7 @@ const errorHandler = (err) => {
           })
         })
         .catch(errorHandler)
-        .finally(config.shutdown)
+        .then(config.shutdown)
     })
 
   program
@@ -88,7 +88,7 @@ const errorHandler = (err) => {
           })
         })
         .catch(errorHandler)
-        .finally(config.shutdown)
+        .then(config.shutdown)
     })
 
   program.parse(process.argv)
