@@ -51,12 +51,12 @@ const action = async (file, direction) => {
   console.log(['┌─║ migrate ', (direction === 'up') ? 'up ║' : 'down ║'].join(''))
   console.log(['│ ╚═════════', (direction === 'up') ? '═══╝' : '═════╝'].join(''))
   console.log('│')
-  console.log('├─ setting up...')
+  console.log('├─ setting up ...')
   const config = configFactory(file)
   const migrate = mygreat.from(config.local, config.remote)
   const setup = await config.setup()
   const fn = migrate[direction]
-  console.log('├─ migrating...')
+  console.log('├─ migrating ...')
   const result = await fn(setup)
 
   if (!result || result.content.length === 0) {
