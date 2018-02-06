@@ -3,7 +3,7 @@
 const memory = require('mygreat/adaptors/in-memory')
 
 module.exports = async () => ({
-  local: memory([
+  local: async () => memory([
     {
       name: '01_foo',
       content: {
@@ -12,13 +12,13 @@ module.exports = async () => ({
       }
     },
   ]),
-  remote: memory([
+  remote: async () => memory([
     {
       name: 'f769ae4d-cf75-4831-a440-49970c293fae',
       content: [ '01_foo' ]
     }
   ]),
-  setup: () => {
+  setup: async () => {
     return new Database('connection-string')
   }
 })

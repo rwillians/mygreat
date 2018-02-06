@@ -52,10 +52,14 @@ const action = async (file, direction) => {
   console.log(['│ ╚═════════', (direction === 'up') ? '═══╝' : '═════╝'].join(''))
   console.log('│')
   console.log('├─ setting up ...')
+
   const config = configFactory(file)
-  const migrate = mygreat.from(config.local, config.remote)
   const setup = await config.setup()
+  const local = await config.local(setup)
+  const remote = await config.remote(setup)
+  const migrate = mygreat.from(local, remote)
   const fn = migrate[direction]
+
   console.log('├─ migrating ...')
   const result = await fn(setup)
 
@@ -63,7 +67,7 @@ const action = async (file, direction) => {
     console.log('│ └─ nothing to migrate')
     console.log('│')
     console.log('└─ [ » exit 0 ]')
-    config.shutdown()
+    config.shutdown(setup)
     return
   }
   console.log(`│ └─ migrated ${direction}`)
@@ -80,7 +84,7 @@ const action = async (file, direction) => {
   console.log('│')
   console.log('└─ [ » exit 0 ]')
 
-  return config.shutdown()
+  return config.shutdown(setup)
 }
 
 ;(async () => {
